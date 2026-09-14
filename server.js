@@ -19,7 +19,7 @@ if (!S3_BUCKET_NAME) {
   console.warn("S3_BUCKET_NAME envidronment variable is not set.");
 }
 
-// ECS uses ecsTaskRole automatically.
+// ECS uses ecsTaskRole automaticalsly.
 // No AWS access keys are required in the code.
 const s3Client = new S3Client({
   region: AWS_REGION,
