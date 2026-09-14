@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const {
   S3Client,
   GetObjectCommand,
@@ -8,6 +9,14 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const app = express();
 
+// CORS
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
+);
+
 app.use(express.json());
 
 // Environment variables
@@ -16,7 +25,7 @@ const AWS_REGION = process.env.AWS_REGION || "ap-south-1";
 const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 
 if (!S3_BUCKET_NAME) {
-  console.warn("S3_BUCKET_NAME envidronment variable is not set.");
+  console.warn("S3_BUCKET_NAME environment variable is not set.");
 }
 
 // ECS uses ecsTaskRole automaticalsly.
@@ -43,8 +52,8 @@ app.get("/api/hello", (req, res) => {
 app.get("/api/users", (req, res) => {
   res.json({
     users: [
-      { id: 1, name: "Johdn" },
-      { id: 2, name: "Davidksssumwsarss" },
+      { id: 1, name: "John" },
+      { id: 2, name: "David" },
     ],
   });
 });
@@ -55,7 +64,7 @@ app.get("/files/download-url", async (req, res) => {
   try {
     if (!S3_BUCKET_NAME) {
       return res.status(500).json({
-        message: "S3_BUCKET_NAME is noht configured",
+        message: "S3_BUCKET_NAME is not configured",
       });
     }
 
@@ -63,7 +72,7 @@ app.get("/files/download-url", async (req, res) => {
 
     if (!key) {
       return res.status(400).json({
-        message: "key query parameters is requireds",
+        message: "key query parameter is required",
       });
     }
 
@@ -83,7 +92,7 @@ app.get("/files/download-url", async (req, res) => {
       url,
     });
   } catch (error) {
-    console.error("Error generating S3 downlodad URL:", error);
+    console.error("Error generating S3 download URL:", error);
 
     res.status(500).json({
       message: "Failed to generate S3 download URL",
@@ -93,7 +102,6 @@ app.get("/files/download-url", async (req, res) => {
 
 // Generate temporary S3 upload URL
 // Example: GET /files/upload-url?key=images/sample.jpg
-// Client can use the returned URL with HTTP PUT to upload the file.
 app.get("/files/upload-url", async (req, res) => {
   try {
     if (!S3_BUCKET_NAME) {
